@@ -1,7 +1,17 @@
+[user]
+    name = wuzhigang
+    email = wuzhigang@kuaishou.com
 [alias]
+    st = status
+    ci = commit
+    co = checkout
+    br = branch
+    pl = pull -r
+    pu = push 
+    hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
 
-	# View abbreviated SHA, description, and history graph of the latest 20 commits
-	l = log --pretty=oneline -n 20 --graph --abbrev-commit
+# View abbreviated SHA, description, and history graph of the latest 20 commits
+    l = log --pretty=oneline -n 20 --graph --abbrev-commit
 
 	# View the current working tree status using the short format
 	s = status -s
@@ -185,3 +195,5 @@
 [url "git://gist.github.com/"]
 
 	insteadOf = "gist:"
+[branch]
+	autosetuprebase = always
