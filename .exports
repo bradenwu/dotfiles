@@ -1,0 +1,9 @@
+
+export ZSH=$HOME/.oh-my-zsh
+export SBT_HOME=$HOME/software/sbt/
+export PATH=$HOME/bin:/usr/local/bin:$PATH:/opt/local/bin:/opt/local/sbin/:/usr/local/sbin/:$HOME/software/scala/bin/:$HOME/software/sbt/bin/:$HOME/local/bin/
+export CFLAGS="-I /opt/local/include -L /opt/local/lib"
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home/
+export aliyun="123.56.167.166"
+export HOMEBREW_NO_AUTO_UPDATE=true
