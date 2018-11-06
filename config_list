@@ -1,5 +1,8 @@
+.path
 .gitconfig
 .aliases
 .exports
 .zshrc
 .functions
+.tmux.conf
+bin/tmux-session

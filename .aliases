@@ -154,3 +154,5 @@ alias path='echo -e ${PATH//:/\\n}'
 alias post-review='rbt post -p --stamp --target-groups backend-dev'
 alias pr='post-review'
 alias push="git pull --rebase && mvn validate && git push origin head:master" 
+
+alias tls='tmux ls'
