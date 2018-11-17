@@ -156,3 +156,6 @@ alias pr='post-review'
 alias push="git pull --rebase && mvn validate && git push origin head:master" 
 
 alias tls='tmux ls'
+alias tas='tmux attach -t'
+
+alias gp='git pull -r'

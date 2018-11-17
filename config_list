@@ -1,5 +1,6 @@
 .path
 .gitconfig
+.gitignore
 .aliases
 .exports
 .zshrc
