@@ -1,9 +1,9 @@
-.path
-.gitconfig
-.gitignore
+#.path
+#.gitconfig
+#.gitignore
 .aliases
-.exports
-.zshrc
-.functions
+#.exports
+#.zshrc
+#.functions
 .tmux.conf
 bin/tmux-session
