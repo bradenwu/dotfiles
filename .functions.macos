@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# macOS-specific functions
+# These functions only work on macOS
+
+# Change working directory to the top-most Finder window location
+function cdf() { # short for `cdfinder`
+	cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')";
+}
+
+# Start a PHP server from a directory, optionally specifying the port
+# (Requires PHP 5.4.0+.)
+function phpserver() {
+	local port="${1:-4000}";
+	local ip=$(ipconfig getifaddr en1);
+	sleep 1 && open "http://${ip}:${port}/" &
+	php -S "${ip}:${port}";
+}
+
+# Show/hide hidden files in Finder
+function show_hidden_files() {
+	defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder
+}
+
+function hide_hidden_files() {
+	defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder
+}
+
+# Clean up LaunchServices to remove duplicates in the "Open With" menu
+function cleanup_open_with() {
+	/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
+}

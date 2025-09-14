@@ -13,6 +13,11 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 
+# Local configuration files (should not be committed)
+.local
+*.local
+
+# IDE files
 .classpath
 .idea
 *.iml

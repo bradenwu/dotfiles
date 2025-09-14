@@ -4,6 +4,10 @@
 .aliases
 #.exports
 #.zshrc
-#.functions
+.bashrc
+.functions
+.functions.macos
+.functions.linux
+#.local
 .tmux.conf
 bin/tmux-session

@@ -1,0 +1,54 @@
+# Local Configuration Template
+# Copy this file to ~/.local and customize it for your local machine
+# This file should NOT be committed to version control
+
+# NVM (Node Version Manager) - Uncomment and customize if needed
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Add your local configurations below this line
+# Examples:
+
+# Secret keys and environment variables
+# export API_KEY="your-secret-key"
+# export DATABASE_URL="your-database-url"
+# export GITHUB_TOKEN="your-github-token"
+
+# Machine-specific PATH additions
+# export PATH="$PATH:/usr/local/go/bin"
+# export PATH="$PATH:$HOME/.local/bin"
+# export PATH="$PATH:/opt/some/software/bin"
+
+# Development environment variables
+# export JAVA_HOME="/usr/lib/jvm/default-java"
+# export ANDROID_HOME="$HOME/Android/Sdk"
+# export GO_HOME="$HOME/go"
+
+# Local aliases
+# alias work="cd /path/to/work/project"
+# alias personal="cd /path/to/personal/project"
+# alias docker-clean="docker system prune -f"
+# alias k="kubectl"
+# alias gs="git status"
+
+# Local functions
+# function mkcd() {
+#     mkdir -p "$1" && cd "$1"
+# }
+#
+# function server() {
+#     local port="${1:-8000}"
+#     python3 -m http.server "$port"
+# }
+
+# Machine-specific settings
+# export EDITOR="vim"
+# export VISUAL="vim"
+# export BROWSER="firefox"
+
+# Project-specific shortcuts
+# alias dotfiles="cd ~/dotfiles"
+# alias projects="cd ~/projects"
+
+# Note: This file is loaded last, so it can override any settings from other dotfiles

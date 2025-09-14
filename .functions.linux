@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+# Linux-specific functions
+# These functions work on Linux systems
+
+# Show system information
+function sysinfo() {
+	echo "=== System Information ==="
+	echo "Kernel: $(uname -r)"
+	echo "Distribution: $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2 | tr -d '\"')"
+	echo "Uptime: $(uptime -p)"
+	echo "Memory: $(free -h | grep Mem | awk '{print $3 " / " $2}')"
+	echo "Disk: $(df -h / | tail -1 | awk '{print $3 " / " $2 " (" $5 ")"}')"
+}
+
+# Process management functions
+function psgrep() {
+	ps aux | grep -i "$1" | grep -v grep
+}
+
+function pkillf() {
+	local pid=$(ps aux | grep -i "$1" | grep -v grep | awk '{print $2}')
+	if [ -n "$pid" ]; then
+		kill -9 "$pid"
+		echo "Killed process $pid"
+	else
+		echo "No process found matching: $1"
+	fi
+}
+
+# Package management shortcuts for different distros
+if command_exists apt; then
+	function update() {
+		sudo apt update && sudo apt upgrade -y
+	}
+	function install() {
+		sudo apt install -y "$@"
+	}
+	function remove() {
+		sudo apt remove -y "$@"
+	}
+	function search() {
+		apt search "$@"
+	}
+elif command_exists yum; then
+	function update() {
+		sudo yum update -y
+	}
+	function install() {
+		sudo yum install -y "$@"
+	}
+	function remove() {
+		sudo yum remove -y "$@"
+	}
+	function search() {
+		yum search "$@"
+	}
+elif command_exists pacman; then
+	function update() {
+		sudo pacman -Syu
+	}
+	function install() {
+		sudo pacman -S "$@"
+	}
+	function remove() {
+		sudo pacman -R "$@"
+	}
+	function search() {
+		pacman -Ss "$@"
+	}
+fi
+
+# Network utilities
+function myip() {
+	echo "Public IP: $(curl -s ifconfig.me)"
+	echo "Local IP: $(hostname -I | awk '{print $1}')"
+}
+
+function portscan() {
+	local host="${1:-localhost}"
+	local port="${2:-1-1000}"
+	echo "Scanning $host on ports $port..."
+	nmap -p "$port" "$host"
+}
+
+# System maintenance
+function cleanup() {
+	echo "Cleaning up package manager cache..."
+	if command_exists apt; then
+		sudo apt autoremove -y
+		sudo apt clean
+	elif command_exists yum; then
+		sudo yum autoremove -y
+		sudo yum clean all
+	elif command_exists pacman; then
+		sudo pacman -Rns $(pacman -Qtdq)
+		sudo pacman -Scc
+	fi
+	
+	echo "Cleaning up temporary files..."
+	sudo rm -rf /tmp/*
+	sudo rm -rf /var/tmp/*
+	
+	echo "System cleanup completed."
+}
