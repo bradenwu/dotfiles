@@ -254,5 +254,5 @@ function no_proxy() {
 	unset http_proxy
 	unset https_proxy
 	unset HTTP_PROXY
-	unset HTTPS_PROXy
+	unset HTTPS_PROXY
 }
