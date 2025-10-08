@@ -34,3 +34,5 @@ unset file
 alias zshconfig="nano ~/.zshrc"
 alias zshreload="source ~/.zshrc"
 alias ohmyzsh="nano ~/.oh-my-zsh"
+export SCRCPY_SERVER_PATH=/Applications/极空间.app/Contents/Resources/app.asar.unpacked/bin/platform-tools/scrcpy-server
+export PATH=$PATH:/Applications/极空间.app/Contents/Resources/app.asar.unpacked/bin/platform-tools

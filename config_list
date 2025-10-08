@@ -1,9 +1,9 @@
-#.path
+.path
 #.gitconfig
 #.gitignore
 .aliases
 #.exports
-#.zshrc
+.zshrc
 .bashrc
 .functions
 .functions.macos
