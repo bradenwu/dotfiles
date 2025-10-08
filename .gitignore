@@ -17,6 +17,10 @@ Thumbs.db
 .local
 *.local
 
+# Environment variables file (contains sensitive information)
+.env
+*.env
+
 # IDE files
 .classpath
 .idea

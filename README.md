@@ -76,6 +76,9 @@ cd ~/dotfiles
 ├── .path                      # 路径配置
 ├── .exports                   # 环境变量
 ├── .gitignore                 # Git 忽略文件
+├── .env.example               # 环境变量模板
+├── load_env.sh                # 环境变量加载脚本
+├── switch_cc_to_glm.sh        # GLM 模型切换脚本
 ├── config_list                # 配置文件列表
 ├── install.sh                 # 主安装脚本
 ├── check_env.sh               # 环境检查脚本
@@ -106,16 +109,114 @@ cd ~/dotfiles
 - **macOS**: `.functions.macos`
 - **Linux**: `.functions.linux`
 
+### 环境变量配置
+
+项目使用 `.env` 文件管理敏感信息，确保安全性和可移植性：
+
+#### 创建环境变量文件
+
+```bash
+# 复制环境变量模板
+cp ~/dotfiles/.env.example ~/dotfiles/.env
+
+# 编辑环境变量文件
+nano ~/dotfiles/.env
+
+# 重新加载配置（会自动加载）
+source ~/.bashrc
+```
+
+#### 环境变量说明
+
+- **用途**：存放 API 密钥、代理设置、模型配置等敏感信息
+- **安全性**：`.env` 文件已添加到 `.gitignore`，不会提交到版本控制
+- **自动加载**：`.bashrc` 会自动加载 `~/dotfiles/.env` 文件
+- **优先级**：环境变量优先于脚本中的硬编码值
+
+#### 支持的环境变量
+
+```bash
+# 代理设置
+HTTP_PROXY=http://127.0.0.1:18080
+HTTPS_PROXY=http://127.0.0.1:18080
+
+# API 密钥
+API_KEY=your-secret-key
+GITHUB_TOKEN=your-github-token
+ANTHROPIC_AUTH_TOKEN=your-anthropic-token
+
+# Claude Code 配置
+ANTHROPIC_BASE_URL=https://api.anthropic.com
+ANTHROPIC_DEFAULT_OPUS_MODEL=claude-3-opus-20240229
+ANTHROPIC_DEFAULT_SONNET_MODEL=claude-3-sonnet-20240229
+ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-3-haiku-20240307
+
+# GLM 配置示例
+ANTHROPIC_BASE_URL=http://open.bigmodel.cn/api/anthropic
+ANTHROPIC_DEFAULT_OPUS_MODEL=GLM-4.6
+ANTHROPIC_DEFAULT_SONNET_MODEL=GLM-4.6
+ANTHROPIC_DEFAULT_HAIKU_MODEL=GLM-4.5-Air
+```
+
+### Claude Code 模型切换
+
+项目提供了便捷的模型切换脚本，支持在 Claude 官方 API 和 GLM 模型之间切换：
+
+#### GLM 模型切换
+
+```bash
+# 切换到 GLM 模型
+source ~/dotfiles/switch_cc_to_glm.sh
+```
+
+**脚本功能：**
+- 自动加载 `.env` 文件中的配置
+- 设置 GLM API 端点：`http://open.bigmodel.cn/api/anthropic`
+- 配置推荐的 GLM 模型：
+  - Opus: `GLM-4.6`
+  - Sonnet: `GLM-4.6`
+  - Haiku: `GLM-4.5-Air`
+- 清除代理设置，确保直连
+
+**配置优先级：**
+1. `.env` 文件中的设置（最高优先级）
+2. 脚本中的默认配置
+3. 系统环境变量
+
+**使用示例：**
+
+```bash
+# 方法 1：直接执行脚本
+source ~/dotfiles/switch_cc_to_glm.sh
+
+# 方法 2：通过 load_env.sh 加载环境变量后执行
+source ~/dotfiles/load_env.sh
+source ~/dotfiles/switch_cc_to_glm.sh
+```
+
+**自定义配置：**
+
+如需自定义模型配置，可在 `.env` 文件中设置：
+
+```bash
+# .env 文件
+ANTHROPIC_AUTH_TOKEN=your-glm-token
+ANTHROPIC_DEFAULT_OPUS_MODEL=GLM-4.6
+ANTHROPIC_DEFAULT_SONNET_MODEL=GLM-4.6
+ANTHROPIC_DEFAULT_HAIKU_MODEL=GLM-4.5-Air
+# 如果需要自定义 API 端点
+# ANTHROPIC_BASE_URL=http://open.bigmodel.cn/api/anthropic
+```
+
 ### 本地配置
 
 `.local` 文件用于存放个人本地配置，**不应该提交到版本控制**：
 
-- **用途**：存放敏感信息、个人偏好、机器特定配置
+- **用途**：存放个人偏好、机器特定配置、开发环境设置
 - **加载顺序**：最后加载，可以覆盖任何仓库中的设置
 - **创建方法**：复制 `.local.template` 为 `~/.local` 并自定义
 - **示例配置**：
   - NVM (Node Version Manager) 配置
-  - API 密钥和敏感信息
   - 机器特定的 PATH 设置
   - 个人项目别名
   - 开发环境变量
@@ -325,12 +426,67 @@ ls -la ~/.dotfiles_backup/
    chmod 644 ~/.local
    ```
 
+6. **环境变量 (.env) 不生效**
+   ```bash
+   # 检查文件是否存在
+   ls -la ~/dotfiles/.env
+
+   # 创建环境变量文件
+   cp ~/dotfiles/.env.example ~/dotfiles/.env
+   nano ~/dotfiles/.env
+
+   # 重新加载配置
+   source ~/.bashrc
+
+   # 验证环境变量是否加载
+   echo $ANTHROPIC_AUTH_TOKEN
+   ```
+
+7. **GLM 模型切换不生效**
+   ```bash
+   # 检查脚本是否存在且有执行权限
+   ls -la ~/dotfiles/switch_cc_to_glm.sh
+   chmod +x ~/dotfiles/switch_cc_to_glm.sh
+
+   # 检查环境变量是否正确设置
+   source ~/dotfiles/switch_cc_to_glm.sh
+   echo $ANTHROPIC_BASE_URL
+   echo $ANTHROPIC_DEFAULT_OPUS_MODEL
+
+   # 验证认证令牌是否设置
+   echo $ANTHROPIC_AUTH_TOKEN
+
+   # 如果使用自定义配置，检查 .env 文件
+   cat ~/dotfiles/.env | grep ANTHROPIC
+   ```
+
 ### 调试模式
 
 ```bash
 # 启用调试输出
 bash -x ./install.sh
 ```
+
+## 🔐 安全性说明
+
+### 敏感信息管理
+
+本项目采用分层配置管理敏感信息：
+
+1. **`.env` 文件** - 存放 API 密钥、令牌等敏感信息
+   - 已添加到 `.gitignore`，不会提交到版本控制
+   - 需要手动创建：`cp .env.example .env`
+   - 自动被 shell 配置加载
+
+2. **`.local` 文件** - 存放个人本地配置
+   - 已添加到 `.gitignore`，不会提交到版本控制
+   - 存放在用户 home 目录：`~/.local`
+   - 最后加载，可覆盖其他配置
+
+3. **配置模板** - 提供配置示例
+   - `.env.example` - 环境变量模板
+   - `.local.template` - 本地配置模板
+   - 安全提交到版本控制
 
 ## 🔄 更新和维护
 

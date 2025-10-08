@@ -244,10 +244,19 @@ function getip() {
 }
 
 function use_proxy() {
-	export http_proxy="http://127.0.0.1:10080"
-	export https_proxy="http://127.0.0.1:10080"
-	export HTTP_PROXY="http://127.0.0.1:10080"
-	export HTTPS_PROXY="http://127.0.0.1:10080"
+	# Load proxy settings from environment variables if available
+	if [ -n "$HTTP_PROXY" ]; then
+		export http_proxy="$HTTP_PROXY"
+		export https_proxy="$HTTP_PROXY"
+		export HTTP_PROXY="$HTTP_PROXY"
+		export HTTPS_PROXY="$HTTP_PROXY"
+	else
+		# Default proxy setting
+		export http_proxy="http://127.0.0.1:18080"
+		export https_proxy="http://127.0.0.1:18080"
+		export HTTP_PROXY="http://127.0.0.1:18080"
+		export HTTPS_PROXY="http://127.0.0.1:18080"
+	fi
 }
 
 function no_proxy() {

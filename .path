@@ -1,1 +1,1 @@
-export PATH=$PATH:/Users/wuzhigang/bin/
+export PATH=$PATH:/home/wuzhigang/bin/:/home/wuzhigang/.nvm/versions/node/v22.19.0/bin/
