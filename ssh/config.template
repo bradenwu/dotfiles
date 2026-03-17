@@ -1,0 +1,53 @@
+# SSH Config Template
+# Copy this file to ~/.ssh/config and fill in the actual values.
+# DO NOT commit ~/.ssh/config with real IPs to version control.
+
+Host dev
+    HostName 192.168.x.x        # 内网开发机 IP
+    User YOUR_USERNAME
+
+Host sg
+    HostName YOUR_SG_IP
+    User YOUR_USERNAME
+    Compression yes
+    TCPKeepAlive yes
+    ServerAliveInterval 30
+    ServerAliveCountMax 6
+    IPQoS lowdelay throughput
+    IdentityFile ~/.ssh/id_rsa
+
+Host sg-ubuntu
+    HostName YOUR_SG_IP
+    User ubuntu
+    Compression yes
+    TCPKeepAlive yes
+    ServerAliveInterval 30
+    ServerAliveCountMax 6
+    IPQoS lowdelay throughput
+    IdentityFile ~/.ssh/id_rsa
+
+Host tk
+    HostName YOUR_TK_IP
+    User ubuntu
+    Compression yes
+    TCPKeepAlive yes
+    ServerAliveInterval 30
+    ServerAliveCountMax 6
+    IPQoS lowdelay throughput
+    IdentityFile ~/.ssh/id_rsa
+
+Host tx
+    HostName YOUR_TX_IP
+    User root
+    Compression yes
+    TCPKeepAlive yes
+    ServerAliveInterval 30
+    ServerAliveCountMax 6
+    IPQoS lowdelay throughput
+    IdentityFile ~/.ssh/id_rsa
+
+Host tx-tunnel
+    HostName YOUR_TX_IP
+    User root
+    LocalForward 26846 127.0.0.1:26846
+    ServerAliveInterval 60

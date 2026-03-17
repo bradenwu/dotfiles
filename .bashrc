@@ -83,13 +83,13 @@ PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 # ~/.bash_profile if it exists, otherwise ~/.profile (for login shells)
 # and ~/.bashrc (for interactive shells) :
 
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - bash)"
-
-# Restart your shell for the changes to take effect.
+#export PYENV_ROOT="$HOME/.pyenv"
+#[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+#eval "$(pyenv init - bash)"
+#
+## Restart your shell for the changes to take effect.
 
 # Load pyenv-virtualenv automatically by adding
 # the following to ~/.bashrc:
 
-eval "$(pyenv virtualenv-init -)"
+#eval "$(pyenv virtualenv-init -)"

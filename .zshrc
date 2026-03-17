@@ -1,4 +1,4 @@
-# Zsh Configuration
+export PATH="$HOME/.local/bin:$PATH"# Zsh Configuration
 # This file contains zsh-specific configurations
 
 # Path to your oh-my-zsh installation.
@@ -38,3 +38,18 @@ export SCRCPY_SERVER_PATH=/Applications/极空间.app/Contents/Resources/app.asa
 export PATH=$PATH:/Applications/极空间.app/Contents/Resources/app.asar.unpacked/bin/platform-tools
 export HOMEBREW_NO_AUTO_UPDATE=1
 use_proxy
+
+# Added by Antigravity
+export PATH="/Users/wuzhigang/.antigravity/antigravity/bin:$PATH"
+
+# opencode
+export PATH=/Users/wuzhigang/.opencode/bin:$PATH
+
+# bun completions
+[ -s "/Users/wuzhigang/.bun/_bun" ] && source "/Users/wuzhigang/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+alias pip=pip3
+alias python=python3

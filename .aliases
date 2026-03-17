@@ -160,3 +160,5 @@ alias tas='tmux attach -t'
 alias tns='tmux new-session -s'
 
 alias gp='git pull -r'
+alias tunnel='autossh -M 0 -f -N tx-tunnel'
+alias rt='pkill -f tx-tunnel && autossh -M 0 -f -N tx-tunnel'
