@@ -38,7 +38,6 @@ alias ohmyzsh="nano ~/.oh-my-zsh"
 export SCRCPY_SERVER_PATH=/Applications/极空间.app/Contents/Resources/app.asar.unpacked/bin/platform-tools/scrcpy-server
 export PATH=$PATH:/Applications/极空间.app/Contents/Resources/app.asar.unpacked/bin/platform-tools
 export HOMEBREW_NO_AUTO_UPDATE=1
-use_proxy
 
 # Added by Antigravity
 export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
@@ -86,10 +85,30 @@ add_to_path() {
 }
 # <<< portable init helper <<<
 
-# >>> conda initialize <<<
-init_if_found "conda" "etc/profile.d/conda.sh" \
-    "/opt/anaconda3" "/opt/miniconda3" \
-    "$HOME/anaconda3" "$HOME/miniconda3" \
-    "$HOME/.local/anaconda3" "$HOME/.local/miniconda3"
+## >>> conda initialize <<<
+## DEBUG: 检查 conda 初始化前的 PATH
+#echo "[DEBUG] Before conda init:" >&2
+#echo "  PATH=$PATH" >&2
+#type dirname >&2
+#init_if_found "conda" "etc/profile.d/conda.sh" \
+#    "/opt/anaconda3" "/opt/miniconda3" \
+#    "$HOME/anaconda3" "$HOME/miniconda3" \
+#    "$HOME/.local/anaconda3" "$HOME/.local/miniconda3"
+## <<< conda initialize <<<
+#
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/opt/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/opt/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/opt/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
 # <<< conda initialize <<<
 
