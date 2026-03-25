@@ -1,0 +1,199 @@
+# Claude Code Skills Registry
+# 这是所有已安装 skill 的权威注册表
+# 换机器后运行 install-skills.sh 即可一键恢复
+#
+# type 字段说明:
+#   plugin        - 通过 `claude plugin install` 安装，配置在 settings.json
+#   skill-git     - 直接 git clone 到 ~/.claude/skills/
+#   skill-manual  - 需要手动安装（有复杂依赖或特殊步骤）
+#   command       - ~/.claude/commands/ 下的 slash 命令文件
+
+plugins:
+  # 官方 marketplace: anthropics/claude-plugins-official (默认已内置，无需 marketplace add)
+  - name: code-simplifier
+    marketplace: claude-plugins-official
+    install_cmd: claude plugin install code-simplifier@claude-plugins-official
+    enabled: true
+    description: |
+      代码简化器。在完成代码修改后，自动审查并精简代码，
+      提升清晰度、一致性和可维护性，同时保留所有功能。
+
+  - name: explanatory-output-style
+    marketplace: claude-plugins-official
+    install_cmd: claude plugin install explanatory-output-style@claude-plugins-official
+    enabled: true
+    description: |
+      解释性输出风格。让 Claude 在完成任务时提供教育性解释，
+      在写代码前后用 ★ Insight 格式输出关键学习点，适合边做边学。
+
+  - name: skill-creator
+    marketplace: claude-plugins-official
+    install_cmd: claude plugin install skill-creator@claude-plugins-official
+    enabled: true
+    description: |
+      Skill 创作工具。用于创建新 skill、修改和优化现有 skill、
+      运行 eval 测试 skill 性能，以及优化 skill 的触发描述。
+
+  - name: planning-with-files
+    marketplace: planning-with-files
+    marketplace_source: OthmanAdi/planning-with-files  # GitHub repo, 需要先 marketplace add
+    install_cmd: |
+      claude plugin marketplace add planning-with-files github:OthmanAdi/planning-with-files
+      claude plugin install planning-with-files@planning-with-files
+    enabled: true
+    description: |
+      文件式任务规划（Manus 风格）。对复杂任务创建 task_plan.md、
+      findings.md、progress.md 来组织和跟踪进度，支持会话中断后恢复。
+
+  - name: ljg-xray-book
+    marketplace: ljg-xray-book
+    marketplace_source: lijigang/ljg-skill-xray-book  # GitHub repo, 需要先 marketplace add
+    install_cmd: |
+      claude plugin marketplace add ljg-xray-book github:lijigang/ljg-skill-xray-book
+      claude plugin install ljg-xray-book@ljg-xray-book
+    enabled: true
+    description: |
+      深度书籍结构提取工具（X-Ray Book）。基于 Epiplexity 原则，
+      对任何书籍进行最大深度的结构提取，生成可学习的知识框架。
+
+  - name: claude-hud
+    marketplace: claude-hud
+    marketplace_source: jarrodwatts/claude-hud
+    install_cmd: |
+      claude plugin marketplace add claude-hud github:jarrodwatts/claude-hud
+      claude plugin install claude-hud@claude-hud
+    enabled: false  # 当前已禁用
+    description: |
+      Claude HUD（状态显示）。在终端中显示 Claude 会话的实时状态信息。
+      目前已安装但禁用。
+
+skills:
+  # --- Git 安装类 (git clone 到 ~/.claude/skills/) ---
+
+  - name: agent-reach
+    type: skill-git
+    source: https://github.com/Panniantong/Agent-Reach
+    install_cmd: |
+      git clone https://github.com/Panniantong/Agent-Reach ~/.claude/skills/agent-reach
+    description: |
+      全平台搜索与阅读工具（7500+ GitHub stars）。支持搜索和读取 14 个平台：
+      Twitter/X、Reddit、YouTube、GitHub、Bilibili、小红书、抖音、微博、
+      微信公众号、LinkedIn、Instagram、RSS、Exa 网页搜索及任意网页。
+      触发词：搜推特、搜小红书、看视频、上网搜、帮我查、search online 等。
+
+  - name: anything-to-notebooklm
+    type: skill-git
+    source: https://github.com/joeseesun/anything-to-notebooklm
+    install_cmd: |
+      git clone https://github.com/joeseesun/anything-to-notebooklm ~/.claude/skills/anything-to-notebooklm
+      cd ~/.claude/skills/anything-to-notebooklm && bash install.sh
+    description: |
+      多源内容智能处理器。支持微信公众号、网页、YouTube、PDF、Markdown 等来源，
+      自动上传到 NotebookLM 并生成播客/PPT/思维导图等多种格式输出。
+
+  - name: daily-standup
+    type: skill-git
+    source: https://github.com/gregorymacfarlane/daily-standup-skill  # 待确认实际 repo
+    install_cmd: |
+      git clone https://github.com/gregorymacfarlane/daily-standup-skill ~/.claude/skills/daily-standup
+    description: |
+      每日站会汇报生成器。读取当前 git 仓库的最近提交记录，
+      自动生成「昨天做了什么、今天计划做什么、是否有阻塞」格式的站会报告。
+      触发词：/daily-standup、站会、standup、每日汇报。
+
+  - name: think
+    type: skill-manual  # 自定义 skill，需手动复制
+    description: |
+      10大心智模型思维教练。当面临决策困境、需要分析问题、想做事后复盘时使用。
+      内置模型：第一性原理、逆向思维、二阶思维、复利效应、奥卡姆剃刀、
+      帕累托法则、能力圈等10个核心心智模型。
+      触发词：帮我想想、帮我分析、给我换个角度看。
+
+  # --- Symlink 类（来自 ~/.agents/skills/，由 openclaw 等 agent 系统管理）---
+
+  - name: defuddle
+    type: skill-symlink
+    symlink_target: ~/.agents/skills/defuddle
+    description: |
+      网页内容提取工具。从网页或本地 HTML 文件中提取干净的文章内容，
+      去除广告、侧边栏、导航等干扰，返回可读内容和元数据。
+
+  - name: file-organizer
+    type: skill-symlink
+    symlink_target: ~/.agents/skills/file-organizer
+    description: |
+      文件整理工具。基于内容分析对文件进行组织和重命名，
+      智能识别文件类型和内容，按语义进行归类整理。
+
+  - name: find-skills
+    type: skill-symlink
+    symlink_target: ~/.agents/skills/find-skills
+    description: |
+      Skill 发现工具。当用户询问"有没有能做 X 的 skill"时帮助发现
+      和安装可用的 agent skills，是扩展 Claude 能力的入口。
+
+  - name: ljg-paper
+    type: skill-symlink
+    symlink_target: ~/.agents/skills/ljg-paper
+    description: |
+      论文阅读器（面向非学术用户）。获取论文并提取其核心思想，
+      聚焦于理解而非学术评价。触发词：读论文、分析论文、paper、arxiv 链接。
+
+  - name: markdown-proxy
+    type: skill-symlink
+    symlink_target: ~/.agents/skills/markdown-proxy
+    description: |
+      URL 转 Markdown 代理工具。通过 r.jina.ai/defuddle.md 等代理服务
+      获取任意网页的干净 Markdown 内容，支持需要登录的页面（微信公众号、飞书等）。
+
+  - name: recall
+    type: skill-symlink
+    symlink_target: ~/.agents/skills/recall
+    description: |
+      历史会话搜索工具。使用 BM25 全文检索搜索所有历史 Claude 会话，
+      找回过去讨论过的内容。触发词：/recall、搜索历史会话、recall。
+
+  - name: skill-creator
+    type: skill-symlink
+    symlink_target: ~/.agents/skills/skill-creator
+    description: |
+      Skill 创建工具（Symlink 版）。与同名 plugin 功能相同，
+      这是通过 .agents 系统安装的符号链接版本。
+
+commands:
+  # ~/.claude/commands/ 下的 slash 命令（.md 文件）
+  - name: code-review
+    description: 代码审查。对当前代码变更进行质量、安全性、可维护性全面审查。
+
+  - name: commit
+    description: 智能提交。审查所有代码变动，生成符合规范的 commit message 并提交。
+
+  - name: create-docs
+    description: 文档生成。为当前项目生成或重新生成技术文档。
+
+  - name: full-context
+    description: 全上下文收集。在处理用户请求前，使用自适应子代理策略智能收集项目上下文。
+
+  - name: gemini-consult
+    description: Gemini 咨询。将当前问题转给 Gemini 模型进行二次咨询，获取多模型视角。
+
+  - name: handoff
+    description: 任务交接。在结束当前项目工作时，创建全面的工作交接文档。
+
+  - name: implement-feature
+    description: 功能实现向导。引导在当前代码库中实现新功能，遵循现有代码风格。
+
+  - name: mcp-status
+    description: MCP 状态检查。检查所有 MCP 服务器的连接状态和健康情况。
+
+  - name: refactor
+    description: 代码重构。对指定文件进行结构优化，保持功能不变。
+
+  - name: run-all-tests-and-fix
+    description: 运行全部测试并修复失败。一键运行所有测试，自动修复测试失败。
+
+  - name: think
+    description: 心智模型思考（Command 版）。用10大心智模型框架分析问题。
+
+  - name: update-docs
+    description: 文档更新。在完成代码工作后，分析变更并更新相关文档。
