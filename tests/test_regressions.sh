@@ -118,6 +118,58 @@ EOF
     rm -rf "$sb"
 }
 
+test_zsh_module_requires_zsh_before_writing_rc() {
+    echo "Test: init_zsh.sh does not write ~/.zshrc when zsh is unavailable"
+    local sb repo rc
+    sb="$(_sandbox)"
+    repo="$sb/repo"
+    mkdir -p "$repo/lib" "$repo/init" "$repo/configs"
+    cp "$REPO_ROOT/lib/common.sh" "$repo/lib/common.sh"
+    cp "$REPO_ROOT/init/init_zsh.sh" "$repo/init/init_zsh.sh"
+    cp "$REPO_ROOT/configs/zshrc" "$repo/configs/zshrc"
+    chmod +x "$repo/init/init_zsh.sh"
+
+    set +e
+    HOME="$sb/home" PATH="/usr/bin" /bin/bash "$repo/init/init_zsh.sh" >/dev/null 2>&1
+    rc=$?
+    set -e
+
+    _assert "zsh module fails clearly" "[ $rc -ne 0 ]"
+    _assert "does not create ~/.zshrc without zsh" "[ ! -e '$sb/home/.zshrc' ]"
+    rm -rf "$sb"
+}
+
+test_bashrc_sources_shared_helpers_on_bash_only_server() {
+    echo "Test: configs/bashrc can source shared helpers under bash"
+    local sb rc output
+    sb="$(_sandbox)"
+    ln -s "$REPO_ROOT/configs/path" "$sb/home/.path"
+    ln -s "$REPO_ROOT/configs/exports" "$sb/home/.exports"
+    ln -s "$REPO_ROOT/configs/aliases" "$sb/home/.aliases"
+    ln -s "$REPO_ROOT/configs/functions" "$sb/home/.functions"
+    ln -s "$REPO_ROOT/configs/functions.linux" "$sb/home/.functions.linux"
+    touch "$sb/home/.local"
+
+    set +e
+    output="$(
+        HOME="$sb/home" PATH="/opt/anaconda3" /bin/bash --noprofile --norc -c '
+            source "$1"
+            command -v git
+            command -v mkdir
+            printf "%s\n" "$PATH"
+        ' bash "$REPO_ROOT/configs/bashrc" 2>&1
+    )"
+    rc=$?
+    set -e
+
+    _assert "bashrc sourced successfully with broken incoming PATH" "[ $rc -eq 0 ]"
+    _assert "git is resolvable after bashrc" "[[ \"$output\" == *\"/git\"* ]]"
+    _assert "mkdir is resolvable after bashrc" "[[ \"$output\" == *\"/mkdir\"* ]]"
+    _assert "final bash PATH contains /usr/bin" "[[ \"$output\" == *\"/usr/bin\"* ]]"
+    _assert "final bash PATH contains /bin" "[[ \"$output\" == *\"/bin\"* ]]"
+    rm -rf "$sb"
+}
+
 test_git_identity_escaping() {
     echo "Test: init_git.sh preserves special characters in identity values"
     local sb
@@ -272,6 +324,8 @@ test_install_failure_propagates
 test_path_is_portable
 test_path_recovers_system_commands
 test_zshrc_recovers_path_before_oh_my_zsh
+test_zsh_module_requires_zsh_before_writing_rc
+test_bashrc_sources_shared_helpers_on_bash_only_server
 test_git_identity_escaping
 test_tmux_installs_helper_to_local_bin
 test_claude_installs_env_next_to_scripts

@@ -28,6 +28,8 @@ export DOTFILES_MODE DOTFILES_ROOT RAW_BASE
 
 print_info "Installing zsh module (mode=$DOTFILES_MODE)"
 
+ensure_cmd zsh "skipping zsh module; install zsh first or use init_bash.sh on bash-only servers"
+
 install_file "configs/zshrc" "$HOME/.zshrc"
 
 # Optional: oh-my-zsh.  Controlled by INSTALL_OH_MY_ZSH=yes|no|ask (default ask).
@@ -63,8 +65,6 @@ if [ "$install_omz" = true ]; then
         || git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting "$local_custom/plugins/zsh-syntax-highlighting" 2>/dev/null \
         || print_warn "zsh-syntax-highlighting install skipped"
 fi
-
-ensure_cmd zsh "install via 'brew install zsh' or 'apt-get install zsh'"
 
 print_ok "zsh module installed"
 print_info "Reload with: exec zsh -l"
