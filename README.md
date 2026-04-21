@@ -58,6 +58,7 @@ curl -fsSL https://raw.githubusercontent.com/bradenwu/dotfiles/master/init/init_
 ├── init/
 │   ├── init_tmux.sh            # 单工具模块（20-40 行，带 curl-bash 自举）
 │   ├── init_vim.sh
+│   ├── init_alias.sh           # 仅 aliases（适合 bash-only 服务器）
 │   ├── init_shell.sh           # aliases/functions/path/exports
 │   ├── init_zsh.sh             # .zshrc + 可选 oh-my-zsh
 │   ├── init_bash.sh            # .bashrc

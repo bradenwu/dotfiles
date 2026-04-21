@@ -37,3 +37,6 @@ bin
 # SSH config (contains real IPs and sensitive server info)
 # Use ssh/config.template instead
 ssh/config
+
+# Generated git config (rendered by init_git.sh from gitconfig.template)
+.gitconfig

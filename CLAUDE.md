@@ -81,6 +81,7 @@ source ~/.claude-switch/switch_cc_to_default.sh
 |------|---------|------|-----------------|
 | `init_tmux.sh` | `~/.tmux.conf`、`~/.local/bin/tmux-session` | — | ✅ 首选分发目标 |
 | `init_vim.sh` | `~/.vimrc` | — | ✅ |
+| `init_alias.sh` | `~/.aliases` | — | ⚠️ 含个人别名但不含其它 shell 配置 |
 | `init_shell.sh` | `~/.aliases` `~/.functions` `~/.functions.{macos,linux}` `~/.path` `~/.exports` | — | ❌ 含个人别名 |
 | `init_zsh.sh` | `~/.zshrc` | 建议先装 `shell`；可选装 oh-my-zsh（`INSTALL_OH_MY_ZSH=yes\|no\|ask`） | ❌ |
 | `init_bash.sh` | `~/.bashrc` | 建议先装 `shell` | ❌ |
@@ -104,7 +105,7 @@ source ~/.claude-switch/switch_cc_to_default.sh
 
 - **不要** 把生成文件（`~/.gitconfig` 渲染结果、`~/.ssh/config`、`.env`）提交进仓库。新增敏感文件时同步改 `.gitignore`，并提供 `.template` 版本。
 - **改加载顺序**（`.bashrc`/`.zshrc` 里的 for-loop）时两边保持一致；机器专属内容（如 conda init、私有 PATH）写到 `~/.local`，不要塞进仓库的 `configs/bashrc`。
-- **新增一个模块**（例如 `init_foo.sh`）：① 在 `configs/` 放源文件；② 复制 `init/init_tmux.sh` 作模板改；③ 在 `install.sh:66` 的 `ALL_MODULES=(...)` 里加名字；④ 在 `install.sh:26` 的 `usage` 文本里更新"Valid names"。
+- **新增一个模块**（例如 `init_foo.sh`）：① 在 `configs/` 放源文件；② 复制 `init/init_tmux.sh` 作模板改；③ 在 `install.sh` 的 `ALL_MODULES` 数组定义处加名字；④ 在 `install.sh` 的 `usage` 文本里更新"Valid names"。
 - **改 `lib/common.sh`** 先跑 `tests/test_common.sh`。`install_file` 的实现很敏感——特别注意 fail-closed 契约，不要引入"fail-soft"的 `|| true`。
 - 平台专属代码：跨平台放 `configs/functions`，macOS 专属放 `configs/functions.macos`，Linux 专属放 `configs/functions.linux`。`.aliases` 里混有 macOS 专属别名（`afk`、`flush`、`emptytrash`），Linux 上静默失效，有需要时再拆。
 - 新增 Claude Code 后端切换（如 DeepSeek）时，复制 `switch_cc_to_glm.sh` 改就行，别引入新机制——`init_claude.sh` 的循环会自动把 `switch_cc_to_*.sh` 装到 `~/.claude-switch/`。

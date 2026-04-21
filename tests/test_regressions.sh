@@ -284,12 +284,23 @@ test_alias_module_registered_in_install() {
     _assert "alias in usage text" "grep -q 'alias' <(grep 'Valid names:' '$REPO_ROOT/install.sh')"
 }
 
-test_alias_raw_url_uses_correct_repo() {
-    echo "Test: init_alias.sh RAW_BASE references bradenwu/dotfiles"
-    local raw_line
-    raw_line="$(grep 'RAW_BASE=' "$REPO_ROOT/init/init_alias.sh")"
-    _assert "uses bradenwu in raw URL" "[[ \"$raw_line\" == *\"bradenwu\"* ]]"
-    _assert "does not reference hnhbwzg" "[[ \"$raw_line\" != *\"hnhbwzg\"* ]]"
+test_zshrc_no_tied_path_variable() {
+    echo "Test: configs/zshrc never uses 'for path in' (tied-variable regression)"
+    _assert "no 'for path in' pattern" "! grep -q 'for path in' '$REPO_ROOT/configs/zshrc'"
+    _assert "uses safe loop variable 'p'" "grep -q 'for p in' '$REPO_ROOT/configs/zshrc'"
+}
+
+test_all_init_scripts_have_consistent_raw_base() {
+    echo "Test: all init scripts use the same RAW_BASE URL"
+    local first_raw
+    first_raw="$(grep -h 'RAW_BASE=' "$REPO_ROOT"/init/init_*.sh | head -1)"
+    for script in "$REPO_ROOT"/init/init_*.sh; do
+        local name
+        name="$(basename "$script")"
+        local this_raw
+        this_raw="$(grep 'RAW_BASE=' "$script")"
+        _assert "$name RAW_BASE matches others" "[ \"$this_raw\" = \"$first_raw\" ]"
+    done
 }
 
 test_tmux_remote_mode_no_leakage() {
@@ -332,7 +343,8 @@ test_claude_installs_env_next_to_scripts
 test_alias_module_local
 test_alias_module_idempotent
 test_alias_module_registered_in_install
-test_alias_raw_url_uses_correct_repo
+test_zshrc_no_tied_path_variable
+test_all_init_scripts_have_consistent_raw_base
 test_tmux_remote_mode_no_leakage
 
 echo "──────────────────────────────────────────"

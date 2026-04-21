@@ -149,7 +149,7 @@ alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resource
 alias reload="exec ${SHELL} -l"
 
 # Print each PATH entry on a separate line
-alias path='echo -e ${PATH//:/\\n}'
+alias showpath='echo -e ${PATH//:/\\n}'
 
 alias post-review='rbt post -p --stamp --target-groups backend-dev'
 alias pr='post-review'
