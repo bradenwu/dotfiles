@@ -4,7 +4,7 @@
 # This orchestrates the per-tool init modules under init/.  On a shared or
 # public server you usually do NOT want this — run a single init_*.sh instead:
 #
-#   curl -fsSL https://raw.githubusercontent.com/hnhbwzg/dotfiles/master/init/init_tmux.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/bradenwu/dotfiles/master/init/init_tmux.sh | bash
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

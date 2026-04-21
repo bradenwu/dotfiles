@@ -14,7 +14,7 @@
 ### 场景 A：自己的机器（全家桶）
 
 ```bash
-git clone https://github.com/hnhbwzg/dotfiles ~/dotfiles
+git clone https://github.com/bradenwu/dotfiles ~/dotfiles
 cd ~/dotfiles
 ./install.sh                              # 交互式，逐模块问 y/N
 # 或非交互：
@@ -28,7 +28,7 @@ INSTALL_MODULES="shell zsh bash tmux vim git ssh claude" ./install.sh
 想在跳板机/共享 GPU 机器上只用仓库里的 tmux 配置，不想留下任何个人痕迹：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hnhbwzg/dotfiles/master/init/init_tmux.sh | bash
+curl -fsSL https://raw.githubusercontent.com/bradenwu/dotfiles/master/init/init_tmux.sh | bash
 ```
 
 该命令会：① 下载 `lib/common.sh` 到临时目录并 source；② 下载 `configs/tmux.conf` 到 `~/.tmux.conf`（实体文件，非 symlink）；③ 下载 `bin/tmux-session` 到 `~/.local/bin/`；④ 如果目标已存在，先备份到 `~/.dotfiles_backup/<name>_<timestamp>`。
@@ -39,10 +39,10 @@ curl -fsSL https://raw.githubusercontent.com/hnhbwzg/dotfiles/master/init/init_t
 
 ```bash
 # 仅 vim
-curl -fsSL https://raw.githubusercontent.com/hnhbwzg/dotfiles/master/init/init_vim.sh | bash
+curl -fsSL https://raw.githubusercontent.com/bradenwu/dotfiles/master/init/init_vim.sh | bash
 
 # 仅 git（可用环境变量跳过交互）
-curl -fsSL https://raw.githubusercontent.com/hnhbwzg/dotfiles/master/init/init_git.sh | \
+curl -fsSL https://raw.githubusercontent.com/bradenwu/dotfiles/master/init/init_git.sh | \
   GIT_NAME="Your Name" GIT_EMAIL="you@example.com" bash
 ```
 

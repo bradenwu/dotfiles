@@ -3,14 +3,14 @@
 #
 # Usage (local clone):   bash init/init_tmux.sh
 # Usage (remote one-liner):
-#   curl -fsSL https://raw.githubusercontent.com/hnhbwzg/dotfiles/master/init/init_tmux.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/bradenwu/dotfiles/master/init/init_tmux.sh | bash
 #
 # Environment overrides:
 #   DOTFILES_RAW_BASE   — override the raw GitHub base URL (useful for testing
 #                         against a local http.server)
 set -euo pipefail
 
-RAW_BASE="${DOTFILES_RAW_BASE:-https://raw.githubusercontent.com/hnhbwzg/dotfiles/master}"
+RAW_BASE="${DOTFILES_RAW_BASE:-https://raw.githubusercontent.com/bradenwu/dotfiles/master}"
 
 # Resolve this script's directory (may be empty when piped via curl|bash).
 _self="${BASH_SOURCE[0]:-}"

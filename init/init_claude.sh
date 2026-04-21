@@ -6,7 +6,7 @@
 # curl|bash on a shared server is not supported here (would be a footgun).
 set -euo pipefail
 
-RAW_BASE="${DOTFILES_RAW_BASE:-https://raw.githubusercontent.com/hnhbwzg/dotfiles/master}"
+RAW_BASE="${DOTFILES_RAW_BASE:-https://raw.githubusercontent.com/bradenwu/dotfiles/master}"
 
 _self="${BASH_SOURCE[0]:-}"
 if [ -n "$_self" ] && [ -f "$_self" ]; then
@@ -21,7 +21,7 @@ if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/../lib/common.sh" ]; then
     source "$SCRIPT_DIR/../lib/common.sh"
 else
     echo "[ERR] init_claude.sh requires a local clone of the repo (it references .env and claude/ registry)." >&2
-    echo "      Clone https://github.com/hnhbwzg/dotfiles first, then run bash init/init_claude.sh" >&2
+    echo "      Clone https://github.com/bradenwu/dotfiles first, then run bash init/init_claude.sh" >&2
     exit 1
 fi
 export DOTFILES_MODE DOTFILES_ROOT RAW_BASE

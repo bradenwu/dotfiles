@@ -2,7 +2,7 @@
 # Install ~/.bashrc. Relies on init_shell.sh for helper files it sources.
 set -euo pipefail
 
-RAW_BASE="${DOTFILES_RAW_BASE:-https://raw.githubusercontent.com/hnhbwzg/dotfiles/master}"
+RAW_BASE="${DOTFILES_RAW_BASE:-https://raw.githubusercontent.com/bradenwu/dotfiles/master}"
 
 _self="${BASH_SOURCE[0]:-}"
 if [ -n "$_self" ] && [ -f "$_self" ]; then

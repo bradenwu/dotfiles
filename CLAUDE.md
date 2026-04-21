@@ -62,7 +62,7 @@ bash init/init_tmux.sh
 bash init/init_zsh.sh
 
 # 公共服务器上只装 tmux（remote 模式，curl|bash）
-curl -fsSL https://raw.githubusercontent.com/hnhbwzg/dotfiles/master/init/init_tmux.sh | bash
+curl -fsSL https://raw.githubusercontent.com/bradenwu/dotfiles/master/init/init_tmux.sh | bash
 
 # 跑 common.sh 单元测试（修改 lib/common.sh 后必跑）
 bash tests/test_common.sh
