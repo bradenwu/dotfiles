@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+# Regression tests for installer behavior and module-specific edge cases.
+
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+PASS=0
+FAIL=0
+FAILED_NAMES=()
+
+_assert() {
+    local name="$1"
+    local cond="$2"
+    if eval "$cond"; then
+        echo "  ✓ $name"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $name  (cond: $cond)"
+        FAIL=$((FAIL + 1))
+        FAILED_NAMES+=("$name")
+    fi
+}
+
+_sandbox() {
+    local sb
+    sb="$(mktemp -d)"
+    mkdir -p "$sb/home"
+    echo "$sb"
+}
+
+test_install_failure_propagates() {
+    echo "Test: install.sh exits non-zero when a module fails"
+    local sb rc
+    sb="$(_sandbox)"
+    set +e
+    HOME="$sb/home" INSTALL_MODULES="doesnotexist" bash "$REPO_ROOT/install.sh" >/dev/null 2>&1
+    rc=$?
+    set -e
+    _assert "install.sh returned non-zero" "[ $rc -ne 0 ]"
+    rm -rf "$sb"
+}
+
+test_path_is_portable() {
+    echo "Test: configs/path uses HOME instead of a hard-coded account"
+    local sb path_value
+    sb="$(_sandbox)"
+    path_value="$(
+        HOME="$sb/home" PATH="/bin:/usr/bin" /bin/bash -c '. "$1"; printf "%s" "$PATH"' bash "$REPO_ROOT/configs/path"
+    )"
+    _assert "adds HOME/bin" "[[ \"$path_value\" == *\"$sb/home/bin\"* ]]"
+    _assert "adds HOME/.local/bin" "[[ \"$path_value\" == *\"$sb/home/.local/bin\"* ]]"
+    _assert "does not mention the original account path" "[[ \"$path_value\" != *\"/Users/wuzhigang/bin\"* ]]"
+    rm -rf "$sb"
+}
+
+test_git_identity_escaping() {
+    echo "Test: init_git.sh preserves special characters in identity values"
+    local sb
+    sb="$(_sandbox)"
+    HOME="$sb/home" GIT_NAME='R&D | West \ Team' GIT_EMAIL='a&b|c\@example.com' bash "$REPO_ROOT/init/init_git.sh" >/dev/null
+    _assert "renders name literally" "[ \"\$(git config -f '$sb/home/.gitconfig' user.name)\" = 'R&D | West \\ Team' ]"
+    _assert "renders email literally" "[ \"\$(git config -f '$sb/home/.gitconfig' user.email)\" = 'a&b|c\\@example.com' ]"
+    rm -rf "$sb"
+}
+
+test_tmux_installs_helper_to_local_bin() {
+    echo "Test: init_tmux.sh installs tmux-session into ~/.local/bin"
+    local sb repo
+    sb="$(_sandbox)"
+    repo="$sb/repo"
+    mkdir -p "$repo/lib" "$repo/init" "$repo/configs" "$repo/bin" "$sb/stub-bin"
+    cp "$REPO_ROOT/lib/common.sh" "$repo/lib/common.sh"
+    cp "$REPO_ROOT/init/init_tmux.sh" "$repo/init/init_tmux.sh"
+    cp "$REPO_ROOT/configs/tmux.conf" "$repo/configs/tmux.conf"
+    cp "$REPO_ROOT/bin/tmux-session" "$repo/bin/tmux-session"
+    chmod +x "$repo/init/init_tmux.sh" "$repo/bin/tmux-session"
+    cat > "$sb/stub-bin/tmux" <<'EOF'
+#!/usr/bin/env bash
+exit 0
+EOF
+    chmod +x "$sb/stub-bin/tmux"
+
+    HOME="$sb/home" PATH="$sb/stub-bin:/bin:/usr/bin" bash "$repo/init/init_tmux.sh" >/dev/null
+
+    _assert "installs helper into ~/.local/bin" "[ -f '$sb/home/.local/bin/tmux-session' ]"
+    _assert "helper is executable" "[ -x '$sb/home/.local/bin/tmux-session' ]"
+    _assert "does not write helper into ~/bin" "[ ! -e '$sb/home/bin/tmux-session' ]"
+    rm -rf "$sb"
+}
+
+test_claude_installs_env_next_to_scripts() {
+    echo "Test: init_claude.sh installs .env beside switch scripts"
+    local sb repo rc
+    sb="$(_sandbox)"
+    repo="$sb/repo"
+    mkdir -p "$repo/lib" "$repo/init" "$repo/claude"
+    cp "$REPO_ROOT/lib/common.sh" "$repo/lib/common.sh"
+    cp "$REPO_ROOT/init/init_claude.sh" "$repo/init/init_claude.sh"
+    cp "$REPO_ROOT/switch_cc_to_default.sh" "$repo/switch_cc_to_default.sh"
+    cp "$REPO_ROOT/switch_cc_to_glm.sh" "$repo/switch_cc_to_glm.sh"
+    cp "$REPO_ROOT/switch_cc_to_kimi.sh" "$repo/switch_cc_to_kimi.sh"
+    chmod +x "$repo/init/init_claude.sh"
+    cat > "$repo/.env" <<'EOF'
+GLM_TOKEN=glm-test-token
+KIMI_TOKEN=kimi-test-token
+EOF
+    cat > "$repo/claude/install-skills.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+echo "skills installer stub" >/dev/null
+EOF
+    chmod +x "$repo/claude/install-skills.sh"
+
+    HOME="$sb/home" bash "$repo/init/init_claude.sh" >/dev/null
+
+    _assert "installs switch script" "[ -f '$sb/home/.claude-switch/switch_cc_to_glm.sh' ]"
+    _assert "installs .env beside switch scripts" "[ -f '$sb/home/.claude-switch/.env' ]"
+    _assert "copies env content" "[ \"\$(cat '$sb/home/.claude-switch/.env')\" = \$'GLM_TOKEN=glm-test-token\nKIMI_TOKEN=kimi-test-token' ]"
+    rm -rf "$sb"
+}
+
+test_tmux_remote_mode_no_leakage() {
+    echo "Test: tmux-only install (simulated remote) does not leak other modules"
+    local sb repo
+    sb="$(_sandbox)"
+    repo="$sb/repo"
+    mkdir -p "$repo/lib" "$repo/init" "$repo/configs" "$repo/bin" "$sb/stub-bin"
+    cp "$REPO_ROOT/lib/common.sh" "$repo/lib/common.sh"
+    cp "$REPO_ROOT/init/init_tmux.sh" "$repo/init/init_tmux.sh"
+    cp "$REPO_ROOT/configs/tmux.conf" "$repo/configs/tmux.conf"
+    cp "$REPO_ROOT/bin/tmux-session" "$repo/bin/tmux-session"
+    chmod +x "$repo/init/init_tmux.sh" "$repo/bin/tmux-session"
+
+    # Only install tmux module — no shell, zsh, bash, git, etc.
+    HOME="$sb/home" INSTALL_MODULES="tmux" bash "$REPO_ROOT/install.sh" >/dev/null 2>&1 || true
+
+    _assert ".tmux.conf landed" "[ -e '$sb/home/.tmux.conf' ]"
+    _assert "tmux-session in ~/.local/bin" "[ -f '$sb/home/.local/bin/tmux-session' ]"
+    _assert "NO .zshrc leaked" "[ ! -e '$sb/home/.zshrc' ]"
+    _assert "NO .bashrc leaked" "[ ! -e '$sb/home/.bashrc' ]"
+    _assert "NO .aliases leaked" "[ ! -e '$sb/home/.aliases' ]"
+    _assert "NO .functions leaked" "[ ! -e '$sb/home/.functions' ]"
+    _assert "NO .gitconfig leaked" "[ ! -e '$sb/home/.gitconfig' ]"
+    rm -rf "$sb"
+}
+
+echo "──────────────────────────────────────────"
+echo "Regression tests"
+echo "──────────────────────────────────────────"
+test_install_failure_propagates
+test_path_is_portable
+test_git_identity_escaping
+test_tmux_installs_helper_to_local_bin
+test_claude_installs_env_next_to_scripts
+test_tmux_remote_mode_no_leakage
+
+echo "──────────────────────────────────────────"
+echo "Passed: $PASS    Failed: $FAIL"
+if [ $FAIL -gt 0 ]; then
+    echo "FAILED:"
+    for n in "${FAILED_NAMES[@]}"; do echo "  - $n"; done
+    exit 1
+fi
+echo "All regression tests passed."

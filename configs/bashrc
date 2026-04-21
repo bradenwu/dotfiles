@@ -14,12 +14,19 @@ for file in ~/.{path,exports,aliases,functions,local}; do
 done;
 unset file
 
-# Load environment variables from .env file in dotfiles directory
-if [ -f ~/dotfiles/.env ]; then
+# Load environment variables from .env — resolve dotfiles root via symlink.
+# Works whether cloned to ~/dotfiles, ~/my-dotfiles, or any other path.
+if [ -L "$HOME/.bashrc" ]; then
+    _dotfiles_root="$(cd "$(dirname "$(readlink "$HOME/.bashrc")")" && pwd)/.."
+else
+    _dotfiles_root="$HOME/dotfiles"
+fi
+if [ -f "$_dotfiles_root/.env" ]; then
     set -a
-    source ~/dotfiles/.env
+    source "$_dotfiles_root/.env"
     set +a
 fi
+unset _dotfiles_root
 
 # Load platform-specific functions
 if [[ "$OSTYPE" == "darwin"* ]]; then

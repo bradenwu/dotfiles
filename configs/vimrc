@@ -1,0 +1,52 @@
+" Minimal vim starter config
+" Shipped by init_vim.sh. Keep this intentionally small — personal tweaks
+" belong in ~/.vimrc.local (sourced at the bottom if present).
+
+set nocompatible
+syntax on
+filetype plugin indent on
+
+" Visual
+set number
+set ruler
+set showcmd
+set cursorline
+set wildmenu
+set laststatus=2
+
+" Search
+set incsearch
+set hlsearch
+set ignorecase
+set smartcase
+
+" Indentation
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set autoindent
+
+" Editing
+set backspace=indent,eol,start
+set encoding=utf-8
+set mouse=a
+set clipboard=unnamed
+set hidden
+set history=1000
+
+" Files
+set nobackup
+set noswapfile
+set autoread
+
+" Sane defaults for split navigation
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Allow local overrides without forking this file
+if filereadable(expand("~/.vimrc.local"))
+    source ~/.vimrc.local
+endif
