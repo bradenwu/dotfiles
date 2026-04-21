@@ -112,3 +112,6 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+
+# smux
+export PATH="$HOME/.smux/bin:$PATH"
