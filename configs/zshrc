@@ -63,9 +63,9 @@ init_if_found() {
     local source_file="$2"
     shift 2
 
-    for path in "$@"; do
-        if [ -f "$path/$source_file" ]; then
-            . "$path/$source_file"
+    for p in "$@"; do
+        if [ -f "$p/$source_file" ]; then
+            . "$p/$source_file"
             return 0
         fi
     done
@@ -74,9 +74,9 @@ init_if_found() {
 
 # Usage: add_to_path "path1" "path2" ... (skips non-existent, no duplicates)
 add_to_path() {
-    for path in "$@"; do
-        if [ -d "$path" ] && [[ ":$PATH:" != *":$path:"* ]]; then
-            export PATH="$path:$PATH"
+    for p in "$@"; do
+        if [ -d "$p" ] && [[ ":$PATH:" != *":$p:"* ]]; then
+            export PATH="$p:$PATH"
         fi
     done
 }
