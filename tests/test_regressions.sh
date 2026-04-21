@@ -55,6 +55,69 @@ test_path_is_portable() {
     rm -rf "$sb"
 }
 
+test_path_recovers_system_commands() {
+    echo "Test: configs/path recovers from a broken PATH and stays idempotent"
+    local sb path_once path_twice
+    sb="$(_sandbox)"
+    path_once="$(
+        HOME="$sb/home" PATH="/opt/anaconda3" /bin/bash -c '. "$1"; printf "%s" "$PATH"' bash "$REPO_ROOT/configs/path"
+    )"
+    path_twice="$(
+        HOME="$sb/home" PATH="/opt/anaconda3" /bin/bash -c '. "$1"; . "$1"; printf "%s" "$PATH"' bash "$REPO_ROOT/configs/path"
+    )"
+
+    _assert "adds /usr/bin" "[[ \":$path_once:\" == *\":/usr/bin:\"* ]]"
+    _assert "adds /bin" "[[ \":$path_once:\" == *\":/bin:\"* ]]"
+    _assert "preserves existing PATH entries" "[[ \":$path_once:\" == *\":/opt/anaconda3:\"* ]]"
+    _assert "re-sourcing does not duplicate entries" "[ \"\$(printf '%s' '$path_twice' | tr ':' '\\n' | sort | uniq -d | wc -l | tr -d ' ')\" -eq 0 ]"
+    rm -rf "$sb"
+}
+
+test_zshrc_recovers_path_before_oh_my_zsh() {
+    echo "Test: configs/zshrc restores PATH before oh-my-zsh initialization"
+    local sb rc output
+    sb="$(_sandbox)"
+    ln -s "$REPO_ROOT/configs/path" "$sb/home/.path"
+    touch "$sb/home/.exports" "$sb/home/.aliases" "$sb/home/.functions" "$sb/home/.local"
+    mkdir -p "$sb/home/.oh-my-zsh"
+    cat > "$sb/home/.oh-my-zsh/oh-my-zsh.sh" <<'EOF'
+command -v mkdir >/dev/null || return 11
+command -v git >/dev/null || return 12
+command -v dirname >/dev/null || return 13
+command -v uname >/dev/null || return 14
+mkdir -p "$HOME/.omz-path-test"
+EOF
+
+    if [ ! -x /bin/zsh ]; then
+        _assert "zsh is available for startup regression" "true"
+        rm -rf "$sb"
+        return 0
+    fi
+
+    set +e
+    output="$(
+        HOME="$sb/home" PATH="/opt/anaconda3" /bin/zsh -fc '
+            source "$1"
+            command -v git
+            command -v mkdir
+            command -v dirname
+            command -v uname
+            printf "%s\n" "$PATH"
+        ' zsh "$REPO_ROOT/configs/zshrc" 2>&1
+    )"
+    rc=$?
+    set -e
+
+    _assert "zshrc sourced successfully with broken incoming PATH" "[ $rc -eq 0 ]"
+    _assert "git is resolvable after zshrc" "[[ \"$output\" == *\"/git\"* ]]"
+    _assert "mkdir is resolvable after zshrc" "[[ \"$output\" == *\"/mkdir\"* ]]"
+    _assert "dirname is resolvable after zshrc" "[[ \"$output\" == *\"/dirname\"* ]]"
+    _assert "uname is resolvable after zshrc" "[[ \"$output\" == *\"/uname\"* ]]"
+    _assert "final zsh PATH contains /usr/bin" "[[ \"$output\" == *\"/usr/bin\"* ]]"
+    _assert "final zsh PATH contains /bin" "[[ \"$output\" == *\"/bin\"* ]]"
+    rm -rf "$sb"
+}
+
 test_git_identity_escaping() {
     echo "Test: init_git.sh preserves special characters in identity values"
     local sb
@@ -151,6 +214,8 @@ echo "Regression tests"
 echo "──────────────────────────────────────────"
 test_install_failure_propagates
 test_path_is_portable
+test_path_recovers_system_commands
+test_zshrc_recovers_path_before_oh_my_zsh
 test_git_identity_escaping
 test_tmux_installs_helper_to_local_bin
 test_claude_installs_env_next_to_scripts

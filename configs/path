@@ -1,9 +1,24 @@
-case ":$PATH:" in
-    *":$HOME/bin:"*) ;;
-    *) PATH="${PATH:+$PATH:}$HOME/bin" ;;
-esac
-case ":$PATH:" in
-    *":$HOME/.local/bin:"*) ;;
-    *) PATH="${PATH:+$PATH:}$HOME/.local/bin" ;;
-esac
+_path_prepend() {
+    [ -n "$1" ] || return 0
+    case ":$PATH:" in
+        *":$1:"*) ;;
+        *) PATH="$1${PATH:+:$PATH}" ;;
+    esac
+}
+
+_path_prepend_if_dir() {
+    [ -d "$1" ] && _path_prepend "$1"
+}
+
+_path_prepend "/sbin"
+_path_prepend "/usr/sbin"
+_path_prepend "/bin"
+_path_prepend "/usr/bin"
+_path_prepend "/usr/local/bin"
+_path_prepend_if_dir "/opt/homebrew/sbin"
+_path_prepend_if_dir "/opt/homebrew/bin"
+_path_prepend "$HOME/bin"
+_path_prepend "$HOME/.local/bin"
+
 export PATH
+unset -f _path_prepend _path_prepend_if_dir

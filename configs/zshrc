@@ -1,6 +1,12 @@
 # Zsh Configuration
 # This file contains zsh-specific configurations
 
+# Load the minimum path/export baseline before oh-my-zsh or tool init.
+for file in ~/.{path,exports}; do
+    [ -r "$file" ] && [ -f "$file" ] && source "$file";
+done;
+unset file
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -23,7 +29,7 @@ else
 fi
 
 # Load user-specific files
-for file in ~/.{path,exports,aliases,functions,local}; do
+for file in ~/.{aliases,functions,local}; do
     [ -r "$file" ] && [ -f "$file" ] && source "$file";
 done;
 unset file
@@ -76,16 +82,16 @@ add_to_path() {
 }
 # <<< portable init helpers >>>
 
+# bun completions + install root
+export BUN_INSTALL="$HOME/.bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
 # Tool PATHs — add_to_path skips non-existent dirs, safe on any machine.
 add_to_path \
     "$HOME/.antigravity/antigravity/bin" \
     "$HOME/.opencode/bin" \
     "$HOME/.smux/bin" \
     "$BUN_INSTALL/bin"
-
-# bun completions + install root
-export BUN_INSTALL="$HOME/.bun"
-[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # SCRCPY (macOS only, auto-skips if not present)
 if [ -f "/Applications/极空间.app/Contents/Resources/app.asar.unpacked/bin/platform-tools/scrcpy-server" ]; then
@@ -94,7 +100,9 @@ if [ -f "/Applications/极空间.app/Contents/Resources/app.asar.unpacked/bin/pl
 fi
 
 # Conda — auto-detect across common install locations
-init_if_found "conda" "etc/profile.d/conda.sh" \
+if init_if_found "conda" "etc/profile.d/conda.sh" \
     "/opt/anaconda3" "/opt/miniconda3" \
     "$HOME/anaconda3" "$HOME/miniconda3" \
-    "$HOME/.local/anaconda3" "$HOME/.local/miniconda3"
+    "$HOME/.local/anaconda3" "$HOME/.local/miniconda3"; then
+    [ -r "$HOME/.path" ] && [ -f "$HOME/.path" ] && source "$HOME/.path"
+fi
