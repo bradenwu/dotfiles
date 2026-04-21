@@ -22,7 +22,7 @@ Usage: $0 [install|check|help]
 Environment:
   INSTALL_MODULES   Space-separated module names to install non-interactively.
                     Example: INSTALL_MODULES="shell zsh tmux vim" ./install.sh
-                    Valid names: shell zsh bash tmux vim git ssh claude
+                    Valid names: shell alias zsh bash tmux vim git ssh claude
   GIT_NAME / GIT_EMAIL
                     Skip the git identity prompt when used with init_git.sh.
 EOF
@@ -63,7 +63,7 @@ case "$cmd" in
 esac
 
 # Default module order: shell helpers first (zsh/bash rc's source them).
-ALL_MODULES=(shell zsh bash tmux vim git ssh claude)
+ALL_MODULES=(shell alias zsh bash tmux vim git ssh claude)
 
 # Pre-flight env check (non-fatal — warn only)
 if [ -x "$SCRIPT_DIR/check_env.sh" ]; then

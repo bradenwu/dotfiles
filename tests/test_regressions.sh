@@ -184,6 +184,62 @@ EOF
     rm -rf "$sb"
 }
 
+test_alias_module_local() {
+    echo "Test: init_alias.sh installs ~/.aliases in local mode"
+    local sb repo
+    sb="$(_sandbox)"
+    repo="$sb/repo"
+    mkdir -p "$repo/lib" "$repo/init" "$repo/configs"
+    cp "$REPO_ROOT/lib/common.sh" "$repo/lib/common.sh"
+    cp "$REPO_ROOT/init/init_alias.sh" "$repo/init/init_alias.sh"
+    cp "$REPO_ROOT/configs/aliases" "$repo/configs/aliases"
+    chmod +x "$repo/init/init_alias.sh"
+
+    HOME="$sb/home" bash "$repo/init/init_alias.sh" >/dev/null
+
+    _assert "installs ~/.aliases" "[ -e '$sb/home/.aliases' ]"
+    _assert "is a symlink (local mode)" "[ -L '$sb/home/.aliases' ]"
+    _assert "symlink points to configs/aliases" "[ '$sb/home/.aliases' -ef '$repo/configs/aliases' ]"
+    _assert "content matches" "[ \"\$(cat '$sb/home/.aliases')\" = \"\$(cat '$repo/configs/aliases')\" ]"
+    rm -rf "$sb"
+}
+
+test_alias_module_idempotent() {
+    echo "Test: init_alias.sh is idempotent (re-run does not error)"
+    local sb repo rc
+    sb="$(_sandbox)"
+    repo="$sb/repo"
+    mkdir -p "$repo/lib" "$repo/init" "$repo/configs"
+    cp "$REPO_ROOT/lib/common.sh" "$repo/lib/common.sh"
+    cp "$REPO_ROOT/init/init_alias.sh" "$repo/init/init_alias.sh"
+    cp "$REPO_ROOT/configs/aliases" "$repo/configs/aliases"
+    chmod +x "$repo/init/init_alias.sh"
+
+    HOME="$sb/home" bash "$repo/init/init_alias.sh" >/dev/null
+    set +e
+    HOME="$sb/home" bash "$repo/init/init_alias.sh" >/dev/null 2>&1
+    rc=$?
+    set -e
+
+    _assert "second run succeeds" "[ $rc -eq 0 ]"
+    _assert "symlink still valid" "[ '$sb/home/.aliases' -ef '$repo/configs/aliases' ]"
+    rm -rf "$sb"
+}
+
+test_alias_module_registered_in_install() {
+    echo "Test: alias is listed in install.sh ALL_MODULES and usage"
+    _assert "alias in ALL_MODULES" "grep -q 'alias' <(grep 'ALL_MODULES=' '$REPO_ROOT/install.sh')"
+    _assert "alias in usage text" "grep -q 'alias' <(grep 'Valid names:' '$REPO_ROOT/install.sh')"
+}
+
+test_alias_raw_url_uses_correct_repo() {
+    echo "Test: init_alias.sh RAW_BASE references bradenwu/dotfiles"
+    local raw_line
+    raw_line="$(grep 'RAW_BASE=' "$REPO_ROOT/init/init_alias.sh")"
+    _assert "uses bradenwu in raw URL" "[[ \"$raw_line\" == *\"bradenwu\"* ]]"
+    _assert "does not reference hnhbwzg" "[[ \"$raw_line\" != *\"hnhbwzg\"* ]]"
+}
+
 test_tmux_remote_mode_no_leakage() {
     echo "Test: tmux-only install (simulated remote) does not leak other modules"
     local sb repo
@@ -219,6 +275,10 @@ test_zshrc_recovers_path_before_oh_my_zsh
 test_git_identity_escaping
 test_tmux_installs_helper_to_local_bin
 test_claude_installs_env_next_to_scripts
+test_alias_module_local
+test_alias_module_idempotent
+test_alias_module_registered_in_install
+test_alias_raw_url_uses_correct_repo
 test_tmux_remote_mode_no_leakage
 
 echo "──────────────────────────────────────────"
