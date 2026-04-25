@@ -32,4 +32,56 @@ print_info "Installing alias module (mode=$DOTFILES_MODE)"
 
 install_file "configs/aliases" "$HOME/.aliases"
 
+ensure_alias_loader() {
+    local rc="$1"
+    local shell_name="$2"
+    local loader='[ -r "$HOME/.aliases" ] && . "$HOME/.aliases"'
+
+    if [ -e "$rc" ] || [ -L "$rc" ]; then
+        if grep -F '.aliases' "$rc" >/dev/null 2>&1; then
+            print_info "$shell_name already loads ~/.aliases"
+            return 0
+        fi
+    fi
+
+    if ! backup_if_exists "$rc"; then
+        print_err "Aborting update of $rc (backup failed, original untouched)"
+        return 1
+    fi
+
+    {
+        printf '\n# Load dotfiles aliases\n'
+        printf '%s\n' "$loader"
+    } >> "$rc" || {
+        print_err "Failed to update $rc"
+        return 1
+    }
+
+    print_ok "enabled ~/.aliases in $rc"
+}
+
+enabled_loader=false
+for rc_shell in bash zsh; do
+    rc="$HOME/.${rc_shell}rc"
+    if [ -e "$rc" ] || [ -L "$rc" ]; then
+        ensure_alias_loader "$rc" "$rc_shell"
+        enabled_loader=true
+    fi
+done
+unset rc rc_shell
+
+if [ "$enabled_loader" = false ]; then
+    current_shell="$(basename "${SHELL:-}")"
+    case "$current_shell" in
+        bash|zsh)
+            ensure_alias_loader "$HOME/.${current_shell}rc" "$current_shell"
+            ;;
+        *)
+            print_warn "No bash/zsh rc found; source ~/.aliases from your shell rc to enable aliases"
+            ;;
+    esac
+    unset current_shell
+fi
+unset enabled_loader
+
 print_ok "alias module installed"

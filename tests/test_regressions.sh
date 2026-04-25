@@ -256,6 +256,25 @@ test_alias_module_local() {
     rm -rf "$sb"
 }
 
+test_alias_module_loads_bashrc() {
+    echo "Test: init_alias.sh enables ~/.aliases from existing ~/.bashrc"
+    local sb repo
+    sb="$(_sandbox)"
+    repo="$sb/repo"
+    mkdir -p "$repo/lib" "$repo/init" "$repo/configs"
+    cp "$REPO_ROOT/lib/common.sh" "$repo/lib/common.sh"
+    cp "$REPO_ROOT/init/init_alias.sh" "$repo/init/init_alias.sh"
+    cp "$REPO_ROOT/configs/aliases" "$repo/configs/aliases"
+    chmod +x "$repo/init/init_alias.sh"
+    printf '%s\n' '# existing bashrc' > "$sb/home/.bashrc"
+
+    HOME="$sb/home" bash "$repo/init/init_alias.sh" >/dev/null
+
+    _assert "bashrc sources aliases" "grep -Fq '[ -r \"\$HOME/.aliases\" ] && . \"\$HOME/.aliases\"' '$sb/home/.bashrc'"
+    _assert "original bashrc backed up" "[ -n \"\$(find '$sb/home/.dotfiles_backup' -name '.bashrc_*' -type f -print -quit)\" ]"
+    rm -rf "$sb"
+}
+
 test_alias_module_idempotent() {
     echo "Test: init_alias.sh is idempotent (re-run does not error)"
     local sb repo rc
@@ -266,6 +285,7 @@ test_alias_module_idempotent() {
     cp "$REPO_ROOT/init/init_alias.sh" "$repo/init/init_alias.sh"
     cp "$REPO_ROOT/configs/aliases" "$repo/configs/aliases"
     chmod +x "$repo/init/init_alias.sh"
+    touch "$sb/home/.bashrc"
 
     HOME="$sb/home" bash "$repo/init/init_alias.sh" >/dev/null
     set +e
@@ -275,6 +295,7 @@ test_alias_module_idempotent() {
 
     _assert "second run succeeds" "[ $rc -eq 0 ]"
     _assert "symlink still valid" "[ '$sb/home/.aliases' -ef '$repo/configs/aliases' ]"
+    _assert "bashrc loader is not duplicated" "[ \"\$(grep -Fc '.aliases' '$sb/home/.bashrc')\" -eq 1 ]"
     rm -rf "$sb"
 }
 
@@ -341,6 +362,7 @@ test_git_identity_escaping
 test_tmux_installs_helper_to_local_bin
 test_claude_installs_env_next_to_scripts
 test_alias_module_local
+test_alias_module_loads_bashrc
 test_alias_module_idempotent
 test_alias_module_registered_in_install
 test_zshrc_no_tied_path_variable
